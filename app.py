@@ -10,7 +10,7 @@ from langchain_openai import OpenAIEmbeddings
 
 # to create a new file named vectorstore in your current directory.
 def load_knowledgeBase():
-        embeddings=OpenAIEmbeddings(api_key="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")
+        embeddings=OpenAIEmbeddings(api_key=st.secrets["OPENAI_API_KEY"])
         DB_FAISS_PATH = '/content/onboard-buddy/embed/HR_Information/'
         db = FAISS.load_local(DB_FAISS_PATH, embeddings)
         return db
@@ -23,7 +23,7 @@ def load_prompt():
         Given below is the context and question of the user.
         context = {context}
         question = {question}
-        if the answer is not in the pdf , answer "i donot know what the hell you are asking about"
+        if the answer is not in the pdf , answer "Sorry, I don't know the anser to that"
          """
         prompt = ChatPromptTemplate.from_template(prompt)
         return prompt
@@ -31,7 +31,7 @@ def load_prompt():
 #to load the OPENAI LLM
 def load_llm():
         from langchain_openai import ChatOpenAI
-        llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0, api_key="Enter your API key")
+        llm = ChatOpenAI(model_name="gpt-3.5-turbo", temperature=0, api_key=st.secrets["OPENAI_API_KEY"])
         return llm
 
 

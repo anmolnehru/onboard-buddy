@@ -1,4 +1,5 @@
 import streamlit as st
+
 from faiss import FAISS
 from openai import OpenAI
 from streamlit_extras.app_logo import add_logo
