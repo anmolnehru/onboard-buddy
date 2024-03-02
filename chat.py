@@ -1,11 +1,18 @@
 import streamlit as st
+from faiss import FAISS
 from openai import OpenAI
 from streamlit_extras.app_logo import add_logo
 
-st.title("onboard-buddy")
-#st.image("onboard-buddy.jpg")
-# Set OpenAI API key from Streamlit secrets
+# Set web page title and icon.
+st.set_page_config(
+    page_title="Your virtual onboarding assistant",
+    page_icon=":robot:"
+)
+
+
+st.title("onboard-buddy.jpg")
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
 
 # Set a default model
 if "openai_model" not in st.session_state:
@@ -20,8 +27,14 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
+db = FAISS.load_local("emded/", embeddings)
+retriever = db.as_retriever()    
+
+qa_chain = RetrievalQA.from_chain_type(llm=chat, chain_type="stuff", retriever=retriever, verbose=True,chain_type_kwargs=chain_type_kwargs)
+
+
 # Accept user input
-if prompt := st.chat_input("What is up?"):
+if prompt := st.chat_input("Let's get you started with onboard buddy"):
     # Add user message to chat history
     st.session_state.messages.append({"role": "user", "content": prompt})
     # Display user message in chat message container
