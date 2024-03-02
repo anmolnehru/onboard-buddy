@@ -1,8 +1,9 @@
 import streamlit as st
 from openai import OpenAI
+from streamlit_extras.app_logo import add_logo
 
 st.title("onboard-buddy")
-
+st.image("onboard-buddy.jpg")
 # Set OpenAI API key from Streamlit secrets
 client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
 
