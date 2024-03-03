@@ -67,7 +67,7 @@ def load_prompt():
         Given below is the context and question of the user.
         context = {context}
         question = {question}
-        if the answer is not in the context or related to company , you must answer "Sorry. I don't have the information you are asking for."
+        if the question is not in the context or related to company or is about boba tea, you must answer "Sorry. I don't know what the hell you're asking about."
         if the question is about Company info or company intro you must answer in three sections: 
           1. Main work of the company. 
           2. Leadership priciples of the company. 
@@ -115,7 +115,7 @@ prompt1=load_prompt()
 
 #
 
-st.title("onboard-buddy")
+st.title("Onbuddy")
 #st.image("onboard-buddy.jpg")
 # Set OpenAI API key from Streamlit secrets
 # client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
@@ -135,37 +135,42 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 st.divider()  # 👈 Draws a horizontal rule
-runshortcut = false;
+runshortcut = False;
+prompt=""
 def promptDay1():
-    prompt="Give me day 1 checklist"
-    runshortcut = true;
-    runchat(prompt)
-    
-    
+    prompt="Give me a day 1 checklist"
+    runshortcut = True;
+    __main__(prompt)
+
+
+def TempInfo():
+    prompt="Give me detailed info about the team and the members"
+    runshortcut = True;
+    __main__(prompt)
+
+def Benefits():
+    prompt="Give me info about my benefits"
+    runshortcut = True;
+    __main__(prompt)
+
 st.button("Day 1 checklist", on_click=promptDay1)
 
 st.divider()  # 👈 Another horizontal rule
 
 
-st.caption("Team info.")
+st.button("Team Info", on_click=TempInfo)
+
 
 st.divider()  # 👈 Another horizontal rule
 
 
-
-
-st.caption("Benefits.")
+st.button("My benefits", on_click=Benefits)
 st.divider()  # 👈 Another horizontal rule
 
-def runchat(prompt):
-    # Accept user input
-    # Add user message to chat history
-    __main__(prompt)
-
-def __main__(prompt):
+prompt = st.chat_input("What is up?")
 # Accept user input
-    if  runshortcut == False:
-        prompt = st.chat_input("What is up?")
+def __main__(prompt):
+    if  prompt:
         # Add user message to chat history
         similar_embeddings=knowledgeBase.similarity_search(prompt)
         similar_embeddings=FAISS.from_documents(documents=similar_embeddings, embedding=OpenAIEmbeddings(api_key=st.secrets["OPENAI_API_KEY"]))
@@ -193,45 +198,17 @@ def __main__(prompt):
             #getting only the chunks that are similar to the query for llm to produce the output
             response = st.write_stream(stream)
             st.session_state.messages.append({"role": "assistant", "content": response})
-            
-
-            # rag_chain = (
-            #         {"context": retriever | format_docs, "question": RunnablePassthrough()}
-            #         | prompt1
-            #         | llm
-            #         | StrOutputParser()
-            #     )
-            
         
-            # response=rag_chain.invoke(prompt)
-            # # stream.append(response)
-            # response = st.write(response)
-    else:
-        prompt="Day 1"
-        similar_embeddings=knowledgeBase.similarity_search(prompt)
-        similar_embeddings=FAISS.from_documents(documents=similar_embeddings, embedding=OpenAIEmbeddings(api_key=st.secrets["OPENAI_API_KEY"]))
+
+        # rag_chain = (
+        #         {"context": retriever | format_docs, "question": RunnablePassthrough()}
+        #         | prompt1
+        #         | llm
+        #         | StrOutputParser()
+        #     )
         
-        #creating the chain for integrating llm,prompt,stroutputparser
-        retriever = similar_embeddings.as_retriever()
-        ans = retriever.get_relevant_documents(prompt)
-        prompt1 = (' ').join([doc.page_content for doc in ans])
-
-        st.session_state.messages.append({"role": "user", "content": prompt})
-        # Display user message in chat message container
-        with st.chat_message("user"):
-            st.markdown(prompt)
-            
-        with st.chat_message("assistant"):
-            stream = client.chat.completions.create(
-                model=st.session_state["openai_model"],
-                messages=[
-                    {"role": m["role"], "content": m["content"] + prompt1}
-                    for m in st.session_state.messages
-                ],
-                stream=True,
-            )
-
-            #getting only the chunks that are similar to the query for llm to produce the output
-            response = st.write_stream(stream)
-            st.session_state.messages.append({"role": "assistant", "content": response})
-
+    
+        # response=rag_chain.invoke(prompt)
+        # # stream.append(response)
+        # response = st.write(response)
+__main__(prompt)
